@@ -5,7 +5,7 @@
     <Product>Microsoft ASP.NET Core</Product>
     <RepositoryUrl>https://github.com/aspnet/Benchmarks</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
-    <NetCoreAppImplicitPackageVersion>1.2.0-*</NetCoreAppImplicitPackageVersion>
+    <NetCoreAppImplicitPackageVersion>2.0.0-beta-001507-00</NetCoreAppImplicitPackageVersion>
     <NetStandardImplicitPackageVersion>1.6.2-*</NetStandardImplicitPackageVersion>
     <VersionSuffix Condition="'$(VersionSuffix)'!='' AND '$(BuildNumber)' != ''">$(VersionSuffix)-$(BuildNumber)</VersionSuffix>
   </PropertyGroup>
