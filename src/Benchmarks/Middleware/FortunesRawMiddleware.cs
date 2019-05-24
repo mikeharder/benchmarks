@@ -30,7 +30,7 @@ namespace Benchmarks.Middleware
             if (httpContext.Request.Path.StartsWithSegments(_path, StringComparison.Ordinal))
             {
                 var db = httpContext.RequestServices.GetService<RawDb>();
-                var rows = await db.LoadFortunesRows();
+                var rows = db.LoadFortunesRows().Result;
 
                 await MiddlewareHelpers.RenderFortunesHtml(rows, httpContext, _htmlEncoder);
 
