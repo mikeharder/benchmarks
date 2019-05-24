@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Reflection;
@@ -159,16 +160,16 @@ namespace Benchmarks
             {
                 webHostBuilder = webHostBuilder.UseHttpSys();
             }
-//#if NETCOREAPP2_2 || NETCOREAPP3_0
-//            else if (String.Equals(Server, "IISInProcess", StringComparison.OrdinalIgnoreCase))
-//            {
-//                webHostBuilder = webHostBuilder.UseIIS();
-//            }
-//#endif
-//            else if (String.Equals(Server, "IISOutOfProcess", StringComparison.OrdinalIgnoreCase))
-//            {
-//                webHostBuilder = webHostBuilder.UseKestrel().UseIISIntegration();
-//            }
+            //#if NETCOREAPP2_2 || NETCOREAPP3_0
+            //            else if (String.Equals(Server, "IISInProcess", StringComparison.OrdinalIgnoreCase))
+            //            {
+            //                webHostBuilder = webHostBuilder.UseIIS();
+            //            }
+            //#endif
+            //            else if (String.Equals(Server, "IISOutOfProcess", StringComparison.OrdinalIgnoreCase))
+            //            {
+            //                webHostBuilder = webHostBuilder.UseKestrel().UseIISIntegration();
+            //            }
             else
             {
                 throw new InvalidOperationException($"Unknown server value: {Server}");
@@ -185,7 +186,33 @@ namespace Benchmarks
                 StartInteractiveConsoleThread();
             }
 
+            var printStatusThread = new Thread(() => PrintStatus());
+            printStatusThread.Start();
+
             webHost.Run();
+
+            printStatusThread.Join();
+        }
+
+        private static void PrintStatus()
+        {
+            while (true)
+            {
+                Thread.Sleep(1000);
+
+                ThreadPool.GetMinThreads(out var minWorkerThreads, out var _);
+                ThreadPool.GetMaxThreads(out var maxWorkerThreads, out var _);
+                ThreadPool.GetAvailableThreads(out var availableWorkerThreads, out var _);
+                var osThreads = Process.GetCurrentProcess().Threads.Count;
+
+                Console.WriteLine(
+                    $"{DateTime.UtcNow.ToString("o")}" +
+                    $"\tTP.Min\t{minWorkerThreads}" +
+                    $"\tTP.Max\t{maxWorkerThreads}" +
+                    $"\tTP.Cur\t{maxWorkerThreads - availableWorkerThreads}" +
+                    $"\tOsThds\t{osThreads}"
+                );
+            }
         }
 
         private static void StartInteractiveConsoleThread()
