@@ -5,8 +5,8 @@
     "PresetHeaders": "Html",
 
     "Source": {
-      "Repository": "https://github.com/aspnet/benchmarks.git",
-      "BranchOrCommit": "master",
+      "Repository": "https://github.com/mikeharder/benchmarks.git",
+      "BranchOrCommit": "fortunes-sync-over-async",
       "Project": "src/Benchmarks/Benchmarks.csproj"
     },
     "ReadyStateText": "Application started."
