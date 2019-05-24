@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 using System.Text.Encodings.Web;
 using System.Threading.Tasks;
 using Benchmarks.Configuration;
@@ -15,9 +16,15 @@ namespace Benchmarks.Middleware
     public class FortunesRawMiddleware
     {
         private static readonly PathString _path = new PathString(Scenarios.GetPath(s => s.DbFortunesRaw));
+        private static readonly bool _syncOverAsync;
 
         private readonly RequestDelegate _next;
         private readonly HtmlEncoder _htmlEncoder;
+
+        static FortunesRawMiddleware()
+        {
+            _syncOverAsync = !string.IsNullOrEmpty(Environment.GetEnvironmentVariable("SYNC_OVER_ASYNC"));
+        }
 
         public FortunesRawMiddleware(RequestDelegate next, HtmlEncoder htmlEncoder)
         {
@@ -30,7 +37,17 @@ namespace Benchmarks.Middleware
             if (httpContext.Request.Path.StartsWithSegments(_path, StringComparison.Ordinal))
             {
                 var db = httpContext.RequestServices.GetService<RawDb>();
-                var rows = db.LoadFortunesRows().Result;
+
+                var rowsTask = db.LoadFortunesRows();
+                IEnumerable<Fortune> rows;
+                if (_syncOverAsync)
+                {
+                    rows = rowsTask.Result;
+                }
+                else
+                {
+                    rows = await rowsTask;
+                }
 
                 await MiddlewareHelpers.RenderFortunesHtml(rows, httpContext, _htmlEncoder);
 
