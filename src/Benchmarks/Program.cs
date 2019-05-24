@@ -30,6 +30,13 @@ namespace Benchmarks
 
         public static void Main(string[] args)
         {
+            var minWorkerThreads = Environment.GetEnvironmentVariable("MIN_WORKER_THREADS");
+            if (!string.IsNullOrEmpty(minWorkerThreads))
+            {
+                ThreadPool.GetMinThreads(out var _, out var completionPortThreads);
+                ThreadPool.SetMinThreads(int.Parse(minWorkerThreads), completionPortThreads);
+            }
+
             Args = args;
 
             Console.WriteLine();
